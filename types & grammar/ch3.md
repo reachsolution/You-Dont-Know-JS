@@ -1,5 +1,5 @@
 #  Types & Grammar   
- Chapter 3: Natives  ------------------------------------------------         Next  ["Coersion"](types\%20&\%20grammer//ch4.md#Coersion)
+ Chapter 3: Natives  ------------------------------------------------         Next  ["Coersion"](ch4.md#Coersion)
 
 Commonly used natives:
 
@@ -327,3 +327,5 @@ As you can see, `Function.prototype` is a function, `RegExp.prototype` is a regu
 JavaScript provides object wrappers around primitive values, known as natives (`String`, `Number`, `Boolean`, etc). These object wrappers give the values access to behaviors appropriate for each object subtype (`String#trim()` and `Array#concat(..)`).
 
 If you have a simple scalar primitive value like `"abc"` and you access its `length` property or some `String.prototype` method, JS automatically "boxes" the value (wraps it in its respective object wrapper) so that the property/method accesses can be fulfilled.
+
+  --------------------------------------------------------------------------------         Next  ["Coersion"](ch4.md#Coersion)
