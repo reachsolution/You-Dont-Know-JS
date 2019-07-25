@@ -16,7 +16,26 @@ Commonly used natives:
 
 These natives are actually **built-in functions**.
 
+|Natives                |Use Constructor Form                        |is new Optional                         |
+|----------------|-------------------------------|-----------------------------|
+|String()	 |No          			 |            		       |   			      |
+|Number()        |No  				             |   
+|Boolean()       |No, `if(Boolean(false)) // is  true`   considered as object'						 |				|
+|Array()		 |No,bcz with single parameter it creates empty slots, with more params it considers as elements.					 |	Yes			|
+|Object()        |No							|yes
+|Function()		 |Mostly No , only If params and body are dynamic ||
+|RegExp()		 |Some times when dynamic expression	||
+|Date()			 |yes, only way, defaults to current date, ES 5-> Date.now(), ||
+|Error()		 |yes, only way|Yes|
+|Symbol()		 |yes, only way|Yes
 
+|                |                        						|
+|----------------|-------------------------------               |
+|Special Types 	 |Natives are Special Types of Object *(BUILT IN)*|
+|instanceOf      |To Check Special type use "instanceof"  intead "typeof" 				             |   
+|Object.prototype.toString()		 |To Find Special type => `Object.prototype.toString([1,2])`				 |	
+|Unboxing       |`.valueOf()`						|
+|Prototypes		 |pply,call and bind =>Function.prototype |
 
 ```js
 var a = new String( "abc" );
