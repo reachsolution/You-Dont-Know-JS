@@ -1,7 +1,7 @@
 # You Don't Know JS: Types & Grammar
 # Chapter 3: Natives
 
-Here's a list of the most commonly used natives:
+Commonly used natives:
 
 * `String()`
 * `Number()`
@@ -14,10 +14,9 @@ Here's a list of the most commonly used natives:
 * `Error()`
 * `Symbol()` -- added in ES6!
 
-As you can see, these natives are actually **built-in functions**.
+These natives are actually **built-in functions**.
 
 
-It *is* true that each of these natives can be used as a native constructor. But may be different than you think.
 
 ```js
 var a = new String( "abc" );
@@ -31,11 +30,13 @@ Object.prototype.toString.call( a ); // "[object String]"
 
 The result of the constructor(`new String("abc")`) is an object wrapper around the primitive (`"abc"`) value.
 
-Importantly, `typeof` shows that these objects are not their own special *types*, but more appropriately they are subtypes of the `object` type.
+ `typeof` shows  not their own special *types*.
 
-## Internal `[[Class]]`
+## Internal `[[Class]]` 
 
-Values that are `typeof` `"object"` (such as an array) are additionally tagged with an internal `[[Class]]` property. This property cannot be accessed directly, but can be revealed indirectly by borrowing the default `Object.prototype.toString(..)` method called against the value. For example:
+Helps to find the subtype of `"object"` type
+
+`Object.prototype.toString(..)` method called against the value passed. For example:
 
 ```js
 Object.prototype.toString.call( [1,2,3] );			// "[object Array]"
@@ -71,23 +72,21 @@ a.length; // 3
 a.toUpperCase(); // "ABC"
 ```
 
-So, if you're going to be accessing these properties/methods on your string values regularly, like a `i < a.length` condition in a `for` loop for instance, it might seem to make sense to just have the object form of the value from the start, so the JS engine doesn't need to implicitly create it for you.
-
 Never do things like `new String("abc")`, `new Number(42)`, etc -- always prefer using the literal primitive values `"abc"` and `42`.
 
 ### Object Wrapper Gotchas
 
-onsider `Boolean` wrapped values:
+Consider `Boolean` wrapped values:
 
 ```js
 var a = new Boolean( false );
 
 if (!a) {
-	console.log( "Oops" ); // never runs
+	console.log( "Oops" ); // never runs now a is an object
 }
 ```
 
-The problem is that you've created an object wrapper around the `false` value, but objects themselves are "truthy".
+
 If you want to manually box a primitive value, you can use the `Object(..)` function (no `new` keyword):
 
 ```js
