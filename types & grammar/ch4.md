@@ -27,9 +27,13 @@ Learn the basic rules that govern how values *become* either a `string`, `number
 
 ### `ToString`
 
-When any non-`string` value is coerced to a `string` representation, the conversion is handled by the `ToString` abstract operation in section 9.8 of the specification.
+When any non-`string` value is coerced to a `string` representation, the conversion is handled by the `ToString` abstract operation 
 
-Built-in primitive values have natural stringification: `null` becomes `"null"`, `undefined` becomes `"undefined"` and `true` becomes `"true"`. `number`s are generally expressed in the natural way you'd expect, but as we discussed in Chapter 2, very small or very large `numbers` are represented in exponent form:
+Built-in primitive values have natural stringification: `null` 		becomes    `"null"`, </br>
+							`undefined`     becomes    `"undefined"`, </br>
+							`true` 		becomes    `"true"`</br>
+							`1`		becomes    `"1"` </br>
+very small or very large `numbers` are represented in exponent form:
 
 ```js
 // multiplying `1.07` by `1000`, seven times over
@@ -39,21 +43,11 @@ var a = 1.07 * 1000 * 1000 * 1000 * 1000 * 1000 * 1000 * 1000;
 a.toString(); // "1.07e21"
 ```
 
-For regular objects, unless you specify your own, the default `toString()` (located in `Object.prototype.toString()`) will return the *internal `[[Class]]`* (see Chapter 3), like for instance `"[object Object]"`.
+For regular objects, unless you specify your own, the default `toString()` will return the *internal `[[Class]]`* - `"[object Object]"`.
 
-But as shown earlier, if an object has its own `toString()` method on it, and you use that object in a `string`-like way, its `toString()` will automatically be called, and the `string` result of that call will be used instead.
+If an object has its own `toString()` method on it then its implementaion result will be displayed
 
-**Note:** The way an object is coerced to a `string` technically goes through the `ToPrimitive` abstract operation (ES5 spec, section 9.1), but those nuanced details are covered in more detail in the `ToNumber` section later in this chapter, so we will skip over them here.
-
-Arrays have an overridden default `toString()` that stringifies as the (string) concatenation of all its values (each stringified themselves), with `","` in between each value:
-
-```js
-var a = [1,2,3];
-
-a.toString(); // "1,2,3"
-```
-
-Again, `toString()` can either be called explicitly, or it will automatically be called if a non-`string` is used in a `string` context.
+Arrays have an overridden default `toString()` that stringifies as `[1,2,3].toString() // "1,2,3"`
 
 #### JSON Stringification
 
