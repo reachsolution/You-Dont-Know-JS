@@ -1,5 +1,5 @@
-#  Types & Grammar
-# Chapter 3: Natives
+#  Types & Grammar   
+ Chapter 3: Natives  ------------------------------------------------         Next  ["Coersion"](types\%20&\%20grammer//ch4.md#Coersion)
 
 Commonly used natives:
 
