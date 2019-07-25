@@ -105,7 +105,7 @@ Object.prototype.toString.call( b ); // "[object String]"
 Object.prototype.toString.call( c ); // "[object String]"
 ```
 
-Boxed object wrapper directly is discouraged, but there may be some rare occasions where they may be useful.
+Use Boxed object wrapper sparingly with caution
 
 ## Unboxing
 
@@ -123,9 +123,9 @@ c.valueOf(); // true
 
 ## Natives as Constructors
 
-For `array`, `object`, `function`, and regular-expression values,  use the literal form for creating the values, literal form creates the same sort of object as the constructor form does.
+For `array`, `object`, `function`, and regular-expression values,  use the literal form , to create  same sort of object as constructor. 
 
-Constructor forms should be avoided, unless you really know you need them, they introduce exceptions and gotchas.
+Avoid unless you really know you need them, they introduce exceptions and gotchas.
 
 ### `Array(..)`
 
@@ -167,60 +167,30 @@ a.map(function(v,i){ return i; }); // [ undefined x 3 ]  it uses the element whi
 b.map(function(v,i){ return i; }); // [ 0, 1, 2 ]
 ```
 
-**Ugh.**
-
-The `a.map(..)` call *fails* because the slots don't actually exist, so `map(..)` has nothing to iterate over. `join(..)` works differently. Basically, we can think of it implemented sort of like this:
-
-```js
-function fakeJoin(arr,connector) {
-	var str = "";
-	for (var i = 0; i < arr.length; i++) {
-		if (i > 0) {
-			str += connector;
-		}
-		if (arr[i] !== undefined) {
-			str += arr[i];
-		}
-	}
-	return str;
-}
-
-var a = new Array( 3 );
-fakeJoin( a, "-" ); // "--"
-```
-
-As you can see, `join(..)` works by just *assuming* the slots exist and looping up to the `length` value. Whatever `map(..)` does internally, it (apparently) doesn't make such an assumption, so the result from the strange "empty slots" array is unexpected and likely to cause failure.
-
 Bottom line: **never ever, under any circumstances**, should you intentionally create and use these exotic empty-slot arrays. Just don't do it. They're nuts.
 
 ### `Object(..)`, `Function(..)`, and `RegExp(..)`
 
-The `Object(..)`/`Function(..)`/`RegExp(..)` constructors are also generally optional (and thus should be avoided unless specifically called for):
+The `Object(..)`/`Function(..)`/`RegExp(..)` constructors are optional avoid it unless a special case.
 
+There's practically no reason to ever use the `new Object()` 
 ```js
 var c = new Object();
 c.foo = "bar";
 c; // { foo: "bar" }
+```
 
-var d = { foo: "bar" };
-d; // { foo: "bar" }
-
+The `Function` constructor is helpful only in the rarest of cases, where you need to dynamically define a function's parameters and/or its function body. **Do not just treat `Function(..)` as an alternate form of `eval(..)`.** You will almost never need to dynamically define a function in this way.
+```js
 var e = new Function( "a", "return a * 2;" );
 var f = function(a) { return a * 2; };
 function g(a) { return a * 2; }
-
-var h = new RegExp( "^a*b+", "g" );
-var i = /^a*b+/g;
 ```
-
-There's practically no reason to ever use the `new Object()` 
-
-The `Function` constructor is helpful only in the rarest of cases, where you need to dynamically define a function's parameters and/or its function body. **Do not just treat `Function(..)` as an alternate form of `eval(..)`.** You will almost never need to dynamically define a function in this way.
 
 Regular expressions defined in the literal form (`/^a*b+/g`) for performance reasons -- the JS engine precompiles and caches them before code execution.  `RegExp(..)` has some reasonable utility: to dynamically define the pattern for a regular expression.
 
 ```js
-var name = "Kyle";
+var name = "Mano";
 var namePattern = new RegExp( "\\b(?:" + name + ")+\\b", "ig" );
 
 var matches = someText.match( namePattern );
