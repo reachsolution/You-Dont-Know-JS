@@ -1,4 +1,4 @@
-# You Don't Know JS: Types & Grammar
+#  Types & Grammar
 # Chapter 3: Natives
 
 Commonly used natives:
@@ -30,12 +30,12 @@ These natives are actually **built-in functions**.
 |Symbol()		 |yes, only way|Yes
 
 |                |                        						|
-|----------------|-------------------------------               |
-|Special Types 	 |Natives are Special Types of Object *(BUILT IN)*|
-|instanceOf      |To Check Special type use "instanceof"  intead "typeof" 				             |   
+|----------------|-------------------------------                                       |
+|Special Types 	 |Natives are Special Types of Object *(BUILT IN)*                      |
+|instanceOf      |To Check Special type use "instanceof"  intead "typeof"               |   
 |Object.prototype.toString()		 |To Find Special type => `Object.prototype.toString([1,2])`				 |	
-|Unboxing       |`.valueOf()`						|
-|Prototypes		 |pply,call and bind =>Function.prototype |
+|Unboxing       |`.valueOf()`						                |
+|Prototypes	|apply,call and bind =>Function.prototype                               |
 
 ```js
 var a = new String( "abc" );
