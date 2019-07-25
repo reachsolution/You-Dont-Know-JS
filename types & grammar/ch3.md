@@ -14,7 +14,7 @@ Commonly used natives:
 * `Error()`
 * `Symbol()` -- added in ES6!
 
-These natives are actually **built-in functions**.
+These natives are actually **built-in functions**. They are subtypes of Object.
 
 |Natives                |Use Constructor Form                        |is new Optional                         |
 |----------------|-------------------------------|-----------------------------|
@@ -258,26 +258,6 @@ Error object instances generally have at least a `message` property, and sometim
 
 New as of ES6,primitive value type "Symbol". Symbols are special "unique" (not strictly guaranteed!) values that can be used as properties on objects with little fear of any collision. They're primarily designed for special built-in behaviors of ES6 constructs, but you can also define your own symbols.
 
-There are several predefined symbols in ES6, accessed as static properties of the `Symbol` function object, like `Symbol.create`, `Symbol.iterator`, etc. To use them, do something like:
-
-```js
-obj[Symbol.iterator] = function(){ /*..*/ };
-```
-
-To define your own custom symbols, use the `Symbol(..)` native. The `Symbol(..)` native "constructor" is unique in that you're not allowed to use `new` with it, as doing so will throw an error.
-
-```js
-var mysym = Symbol( "my own symbol" );
-mysym;				// Symbol(my own symbol)
-mysym.toString();	// "Symbol(my own symbol)"
-typeof mysym; 		// "symbol"
-
-var a = { };
-a[mysym] = "foobar";
-
-Object.getOwnPropertySymbols( a );
-// [ Symbol(my own symbol) ]
-```
 
 **Note:** `Symbol`s are *not* `object`s, they are simple scalar primitives.
 
