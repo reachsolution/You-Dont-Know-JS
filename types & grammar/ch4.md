@@ -230,13 +230,10 @@ That's it. If a value is on that list, it's a "falsy" value, and it will coerce 
 
 *Explicit* coercion refers to type conversions that are obvious and explicit. There's a wide range of type conversion usage that clearly falls under the *explicit* coercion category for most developers.
 
-The goal here is to identify patterns in our code where we can make it clear and obvious that we're converting a value from one type to another, so as to not leave potholes for future developers to trip into. The more explicit we are, the more likely someone later will be able to read our code and understand without undue effort what our intent was.
-
-It would be hard to find any salient disagreements with *explicit* coercion, as it most closely aligns with how the commonly accepted practice of type conversion works in statically typed languages. As such, we'll take for granted (for now) that *explicit* coercion can be agreed upon to not be evil or controversial. We'll revisit this later, though.
 
 ### Explicitly: Strings <--> Numbers
 
-We'll start with the simplest and perhaps most common coercion operation: coercing values between `string` and `number` representation.
+
 
 To coerce between `string`s and `number`s, we use the built-in `String(..)` and `Number(..)` functions (which we referred to as "native constructors" in Chapter 3), but **very importantly**, we do not use the `new` keyword in front of them. As such, we're not creating object wrappers.
 
@@ -259,9 +256,6 @@ I call this *explicit* coercion because in general, it's pretty obvious to most 
 
 In fact, this usage actually looks a lot like it does in some other statically typed languages.
 
-For example, in C/C++, you can say either `(int)x` or `int(x)`, and both will convert the value in `x` to an integer. Both forms are valid, but many prefer the latter, which kinda looks like a function call. In JavaScript, when you say `Number(x)`, it looks awfully similar. Does it matter that it's *actually* a function call in JS? Not really.
-
-Besides `String(..)` and `Number(..)`, there are other ways to "explicitly" convert these values between `string` and `number`:
 
 ```js
 var a = 42;
@@ -274,11 +268,10 @@ b; // "42"
 d; // 3.14
 ```
 
-Calling `a.toString()` is ostensibly explicit (pretty clear that "toString" means "to a string"), but there's some hidden implicitness here. `toString()` cannot be called on a *primitive* value like `42`. So JS automatically "boxes" (see Chapter 3) `42` in an object wrapper, so that `toString()` can be called against the object. In other words, you might call it "explicitly implicit."
+Calling `a.toString()` is  explicit. So JS automatically "boxes"  `42` in an object wrapper, so that `toString()` can be called against the object.
 
 `+c` here is showing the *unary operator* form (operator with only one operand) of the `+` operator. Instead of performing mathematic addition (or string concatenation -- see below), the unary `+` explicitly coerces its operand (`c`) to a `number` value.
 
-Is `+c` *explicit* coercion? Depends on your experience and perspective. If you know (which you do, now!) that unary `+` is explicitly intended for `number` coercion, then it's pretty explicit and obvious. However, if you've never seen it before, it can seem awfully confusing, implicit, with hidden side effects, etc.
 
 **Note:** The generally accepted perspective in the open-source JS community is that unary `+` is an accepted form of *explicit* coercion.
 
@@ -290,20 +283,6 @@ var d = 5+ +c;
 
 d; // 8.14
 ```
-
-The unary `-` operator also coerces like `+` does, but it also flips the sign of the number. However, you cannot put two `--` next to each other to unflip the sign, as that's parsed as the decrement operator. Instead, you would need to do: `- -"3.14"` with a space in between, and that would result in coercion to `3.14`.
-
-You can probably dream up all sorts of hideous combinations of binary operators (like `+` for addition) next to the unary form of an operator. Here's another crazy example:
-
-```js
-1 + - + + + - + 1;	// 2
-```
-
-You should strongly consider avoiding unary `+` (or `-`) coercion when it's immediately adjacent to other operators. While the above works, it would almost universally be considered a bad idea. Even `d = +c` (or `d =+ c` for that matter!) can far too easily be confused for `d += c`, which is entirely different!
-
-**Note:** Another extremely confusing place for unary `+` to be used adjacent to another operator would be the `++` increment operator and `--` decrement operator. For example: `a +++b`, `a + ++b`, and `a + + +b`. See "Expression Side-Effects" in Chapter 5 for more about `++`.
-
-Remember, we're trying to be explicit and **reduce** confusion, not make it much worse!
 
 #### `Date` To `number`
 
