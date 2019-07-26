@@ -366,9 +366,7 @@ Don't forget that `parseInt(..)` operates on `string` values. It makes absolutel
 
 ### Explicitly: * --> Boolean
 
-Now, let's examine coercing from any non-`boolean` value to a `boolean`.
-
-Just like with `String(..)` and `Number(..)` above, `Boolean(..)` (without the `new`, of course!) is an explicit way of forcing the `ToBoolean` coercion:
+`Boolean(..)` (without the `new`, of course!) is an explicit way of forcing the `ToBoolean` coercion:
 
 ```js
 var a = "0";
@@ -392,7 +390,7 @@ Boolean( g ); // false
 
 While `Boolean(..)` is clearly explicit, it's not at all common or idiomatic.
 
-Just like the unary `+` operator coerces a value to a `number` (see above), the unary `!` negate operator explicitly coerces a value to a `boolean`. The *problem* is that it also flips the value from truthy to falsy or vice versa. So, the most common way JS developers explicitly coerce to `boolean` is to use the `!!` double-negate operator, because the second `!` will flip the parity back to the original:
+ `!` negate operator explicitly coerces a value to a `boolean`. The *problem* is that it also flips the value from truthy to falsy or vice versa. So, the most common way JS developers explicitly coerce to `boolean` is to use the `!!` double-negate operator, because the second `!` will flip the parity back to the original:
 
 ```js
 var a = "0";
@@ -414,47 +412,7 @@ var g;
 !!g;	// false
 ```
 
-Any of these `ToBoolean` coercions would happen *implicitly* without the `Boolean(..)` or `!!`, if used in a `boolean` context such as an `if (..) ..` statement. But the goal here is to explicitly force the value to a `boolean` to make it clearer that the `ToBoolean` coercion is intended.
 
-Another example use-case for explicit `ToBoolean` coercion is if you want to force a `true`/`false` value coercion in the JSON serialization of a data structure:
-
-```js
-var a = [
-	1,
-	function(){ /*..*/ },
-	2,
-	function(){ /*..*/ }
-];
-
-JSON.stringify( a ); // "[1,null,2,null]"
-
-JSON.stringify( a, function(key,val){
-	if (typeof val == "function") {
-		// force `ToBoolean` coercion of the function
-		return !!val;
-	}
-	else {
-		return val;
-	}
-} );
-// "[1,true,2,true]"
-```
-
-If you come to JavaScript from Java, you may recognize this idiom:
-
-```js
-var a = 42;
-
-var b = a ? true : false;
-```
-
-The `? :` ternary operator will test `a` for truthiness, and based on that test will either assign `true` or `false` to `b`, accordingly.
-
-On its surface, this idiom looks like a form of *explicit* `ToBoolean`-type coercion, since it's obvious that only either `true` or `false` come out of the operation.
-
-However, there's a hidden *implicit* coercion, in that the `a` expression has to first be coerced to `boolean` to perform the truthiness test. I'd call this idiom "explicitly implicit." Furthermore, I'd suggest **you should avoid this idiom completely** in JavaScript. It offers no real benefit, and worse, masquerades as something it's not.
-
-`Boolean(a)` and `!!a` are far better as *explicit* coercion options.
 
 ## Implicit Coercion
 
