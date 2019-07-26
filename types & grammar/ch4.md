@@ -422,8 +422,6 @@ var g;
 
 ### Implicitly: Strings <--> Numbers
 
-Earlier in this chapter, we explored *explicitly* coercing between `string` and `number` values. Now, let's explore the same task but with *implicit* coercion approaches. But before we do, we have to examine some nuances of operations that will *implicitly* force coercion.
-
 The `+` operator is overloaded to serve the purposes of both `number` addition and `string` concatenation. So how does JS know which type of operation you want to use? Consider:
 
 ```js
@@ -448,19 +446,9 @@ var b = [3,4];
 a + b; // "1,23,4"
 ```
 
-Neither of these operands is a `string`, but clearly they were both coerced to `string`s and then the `string` concatenation kicked in. So what's really going on?
 
-(**Warning:** deeply nitty gritty spec-speak coming, so skip the next two paragraphs if that intimidates you!)
 
------
-
-According to ES5 spec section 11.6.1, the `+` algorithm (when an `object` value is an operand) will concatenate if either operand is either already a `string`, or if the following steps produce a `string` representation. So, when `+` receives an `object` (including `array`) for either operand, it first calls the `ToPrimitive` abstract operation (section 9.1) on the value, which then calls the `[[DefaultValue]]` algorithm (section 8.12.8) with a context hint of `number`.
-
-If you're paying close attention, you'll notice that this operation is now identical to how the `ToNumber` abstract operation handles `object`s (see the "`ToNumber`"" section earlier). The `valueOf()` operation on the `array` will fail to produce a simple primitive, so it then falls to a `toString()` representation. The two `array`s thus become `"1,2"` and `"3,4"`, respectively. Now, `+` concatenates the two `string`s as you'd normally expect: `"1,23,4"`.
-
------
-
-Let's set aside those messy details and go back to an earlier, simplified explanation: if either operand to `+` is a `string` (or becomes one with the above steps!), the operation will be `string` concatenation. Otherwise, it's always numeric addition.
+If either operand to `+` is a `string`, the operation will be `string` concatenation. Otherwise, it's always numeric addition.
 
 **Note:** A commonly cited coercion gotcha is `[] + {}` vs. `{} + []`, as those two expressions result, respectively, in `"[object Object]"` and `0`. There's more to it, though, and we cover those details in "Blocks" in Chapter 5.
 
@@ -475,56 +463,9 @@ var b = a + "";
 b; // "42"
 ```
 
-**Tip:** Numeric addition with the `+` operator is commutative, which means `2 + 3` is the same as `3 + 2`. String concatenation with `+` is obviously not generally commutative, **but** with the specific case of `""`, it's effectively commutative, as `a + ""` and `"" + a` will produce the same result.
 
-It's extremely common/idiomatic to (*implicitly*) coerce `number` to `string` with a `+ ""` operation. In fact, interestingly, even some of the most vocal critics of *implicit* coercion still use that approach in their own code, instead of one of its *explicit* alternatives.
+The `-` operator is defined only for numeric subtraction, so `a - 0` forces `a`'s value to be coerced to a `number`. `a * 1` or `a / 1` would accomplish the same result, as those operators are also only defined for numeric operations.
 
-**I think this is a great example** of a useful form in *implicit* coercion, despite how frequently the mechanism gets criticized!
-
-Comparing this *implicit* coercion of `a + ""` to our earlier example of `String(a)` *explicit* coercion, there's one additional quirk to be aware of. Because of how the `ToPrimitive` abstract operation works, `a + ""` invokes `valueOf()` on the `a` value, whose return value is then finally converted to a `string` via the internal `ToString` abstract operation. But `String(a)` just invokes `toString()` directly.
-
-Both approaches ultimately result in a `string`, but if you're using an `object` instead of a regular primitive `number` value, you may not necessarily get the *same* `string` value!
-
-Consider:
-
-```js
-var a = {
-	valueOf: function() { return 42; },
-	toString: function() { return 4; }
-};
-
-a + "";			// "42"
-
-String( a );	// "4"
-```
-
-Generally, this sort of gotcha won't bite you unless you're really trying to create confusing data structures and operations, but you should be careful if you're defining both your own `valueOf()` and `toString()` methods for some `object`, as how you coerce the value could affect the outcome.
-
-What about the other direction? How can we *implicitly coerce* from `string` to `number`?
-
-```js
-var a = "3.14";
-var b = a - 0;
-
-b; // 3.14
-```
-
-The `-` operator is defined only for numeric subtraction, so `a - 0` forces `a`'s value to be coerced to a `number`. While far less common, `a * 1` or `a / 1` would accomplish the same result, as those operators are also only defined for numeric operations.
-
-What about `object` values with the `-` operator? Similar story as for `+` above:
-
-```js
-var a = [3];
-var b = [1];
-
-a - b; // 2
-```
-
-Both `array` values have to become `number`s, but they end up first being coerced to `strings` (using the expected `toString()` serialization), and then are coerced to `number`s, for the `-` subtraction to perform on.
-
-So, is *implicit* coercion of `string` and `number` values the ugly evil you've always heard horror stories about? I don't personally think so.
-
-Compare `b = String(a)` (*explicit*) to `b = a + ""` (*implicit*). I think cases can be made for both approaches being useful in your code. Certainly `b = a + ""` is quite a bit more common in JS programs, proving its own utility regardless of *feelings* about the merits or hazards of *implicit* coercion in general.
 
 ### Implicitly: Booleans --> Numbers
 
@@ -549,64 +490,10 @@ onlyOne( a, b, a );	// false
 
 This `onlyOne(..)` utility should only return `true` if exactly one of the arguments is `true` / truthy. It's using *implicit* coercion on the truthy checks and *explicit* coercion on the others, including the final return value.
 
-But what if we needed that utility to be able to handle four, five, or twenty flags in the same way? It's pretty difficult to imagine implementing code that would handle all those permutations of comparisons.
-
-But here's where coercing the `boolean` values to `number`s (`0` or `1`, obviously) can greatly help:
-
-```js
-function onlyOne() {
-	var sum = 0;
-	for (var i=0; i < arguments.length; i++) {
-		// skip falsy values. same as treating
-		// them as 0's, but avoids NaN's.
-		if (arguments[i]) {
-			sum += arguments[i];
-		}
-	}
-	return sum == 1;
-}
-
-var a = true;
-var b = false;
-
-onlyOne( b, a );		// true
-onlyOne( b, a, b, b, b );	// true
-
-onlyOne( b, b );		// false
-onlyOne( b, a, b, b, b, a );	// false
-```
-
-**Note:** Of course, instead of the `for` loop in `onlyOne(..)`, you could more tersely use the ES5 `reduce(..)` utility, but I didn't want to obscure the concepts.
-
-What we're doing here is relying on the `1` for `true`/truthy coercions, and numerically adding them all up. `sum += arguments[i]` uses *implicit* coercion to make that happen. If one and only one value in the `arguments` list is `true`, then the numeric sum will be `1`, otherwise the sum will not be `1` and thus the desired condition is not met.
-
-We could of course do this with *explicit* coercion instead:
-
-```js
-function onlyOne() {
-	var sum = 0;
-	for (var i=0; i < arguments.length; i++) {
-		sum += Number( !!arguments[i] );
-	}
-	return sum === 1;
-}
-```
-
-We first use `!!arguments[i]` to force the coercion of the value to `true` or `false`. That's so you could pass non-`boolean` values in, like `onlyOne( "42", 0 )`, and it would still work as expected (otherwise you'd end up with `string` concatenation and the logic would be incorrect).
-
-Once we're sure it's a `boolean`, we do another *explicit* coercion with `Number(..)` to make sure the value is `0` or `1`.
-
-Is the *explicit* coercion form of this utility "better"? It does avoid the `NaN` trap as explained in the code comments. But, ultimately, it depends on your needs. I personally think the former version, relying on *implicit* coercion is more elegant (if you won't be passing `undefined` or `NaN`), and the *explicit* version is needlessly more verbose.
-
-But as with almost everything we're discussing here, it's a judgment call.
-
-**Note:** Regardless of *implicit* or *explicit* approaches, you could easily make `onlyTwo(..)` or `onlyFive(..)` variations by simply changing the final comparison from `1`, to `2` or `5`, respectively. That's drastically easier than adding a bunch of `&&` and `||` expressions. So, generally, coercion is very helpful in this case.
 
 ### Implicitly: * --> Boolean
 
-Now, let's turn our attention to *implicit* coercion to `boolean` values, as it's by far the most common and also by far the most potentially troublesome.
-
-Remember, *implicit* coercion is what kicks in when you use a value in such a way that it forces the value to be converted. For numeric and `string` operations, it's fairly easy to see how the coercions can occur.
+ *implicit* coercion to `boolean` values, as it's by far the most common and also by far the most potentially troublesome.
 
 But, what sort of expression operations require/force (*implicitly*) a `boolean` coercion?
 
@@ -616,33 +503,7 @@ But, what sort of expression operations require/force (*implicitly*) a `boolean`
 4. The test expression (first clause) in `? :` ternary expressions.
 5. The left-hand operand (which serves as a test expression -- see below!) to the `||` ("logical or") and `&&` ("logical and") operators.
 
-Any value used in these contexts that is not already a `boolean` will be *implicitly* coerced to a `boolean` using the rules of the `ToBoolean` abstract operation covered earlier in this chapter.
-
-Let's look at some examples:
-
-```js
-var a = 42;
-var b = "abc";
-var c;
-var d = null;
-
-if (a) {
-	console.log( "yep" );		// yep
-}
-
-while (c) {
-	console.log( "nope, never runs" );
-}
-
-c = d ? a : b;
-c;					// "abc"
-
-if ((a && d) || c) {
-	console.log( "yep" );		// yep
-}
-```
-
-In all these contexts, the non-`boolean` values are *implicitly coerced* to their `boolean` equivalents to make the test decisions.
+Any value used in these contexts that is not already a `boolean` will be *implicitly* coerced to a `boolean` using the rules of the `ToBoolean` abstract operation.
 
 ### Operators `||` and `&&`
 
