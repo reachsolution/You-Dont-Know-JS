@@ -250,7 +250,9 @@ b; // "42"
 d; // 3.14
 ```
 
-`String(..)` coerces from any other value to a primitive `string` value, using the rules of the `ToString` operation discussed earlier. `Number(..)` coerces from any other value to a primitive `number` value, using the rules of the `ToNumber` operation discussed earlier.
+`String(..)` coerces from any other value to a primitive `string` value, using the rules of the `ToString` operation discussed earlier. 
+
+`Number(..)` coerces from any other value to a primitive `number` value, using the rules of the `ToNumber` operation discussed earlier.
 
 I call this *explicit* coercion because in general, it's pretty obvious to most developers that the end result of these operations is the applicable type conversion.
 
