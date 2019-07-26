@@ -338,29 +338,7 @@ I find this to be cleaner code than the previous `>= 0` / `== -1` clutter.
 
 There's one more place `~` may show up in code you run across: some developers use the double tilde `~~` to truncate the decimal part of a `number` (i.e., "coerce" it to a whole number "integer"). It's commonly (though mistakingly) said this is the same result as calling `Math.floor(..)`.
 
-How `~~` works is that the first `~` applies the `ToInt32` "coercion" and does the bitwise flip, and then the second `~` does another bitwise flip, flipping all the bits back to the original state. The end result is just the `ToInt32` "coercion" (aka truncation).
 
-**Note:** The bitwise double-flip of `~~` is very similar to the parity double-negate `!!` behavior, explained in the "Explicitly: * --> Boolean" section later.
-
-However, `~~` needs some caution/clarification. First, it only works reliably on 32-bit values. But more importantly, it doesn't work the same on negative numbers as `Math.floor(..)` does!
-
-```js
-Math.floor( -49.6 );	// -50
-~~-49.6;				// -49
-```
-
-Setting the `Math.floor(..)` difference aside, `~~x` can truncate to a (32-bit) integer. But so does `x | 0`, and seemingly with (slightly) *less effort*.
-
-So, why might you choose `~~x` over `x | 0`, then? Operator precedence (see Chapter 5):
-
-```js
-~~1E20 / 10;		// 166199296
-
-1E20 | 0 / 10;		// 1661992960
-(1E20 | 0) / 10;	// 166199296
-```
-
-Just as with all other advice here, use `~` and `~~` as explicit mechanisms for "coercion" and value transformation only if everyone who reads/writes such code is properly aware of how these operators work!
 
 ### Explicitly: Parsing Numeric Strings
 
