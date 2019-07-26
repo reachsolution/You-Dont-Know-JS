@@ -51,11 +51,6 @@ Arrays have an overridden default `toString()` that stringifies as `[1,2,3].toSt
 
 #### JSON Stringification
 
-Another task that seems awfully related to `ToString` is when you use the `JSON.stringify(..)` utility to serialize a value to a JSON-compatible `string` value.
-
-It's important to note that this stringification is not exactly the same thing as coercion. But since it's related to the `ToString` rules above, we'll take a slight diversion to cover JSON stringification behaviors here.
-
-For most simple values, JSON stringification behaves basically the same as `toString()` conversions, except that the serialization result is *always a `string`*:
 
 ```js
 JSON.stringify( 42 );	// "42"
@@ -64,11 +59,12 @@ JSON.stringify( null );	// "null"
 JSON.stringify( true );	// "true"
 ```
 
-Any *JSON-safe* value can be stringified by `JSON.stringify(..)`. But what is *JSON-safe*? Any value that can be represented validly in a JSON representation.
+Any *JSON-safe* value can be stringified by `JSON.stringify(..)`. But what is *JSON-safe*? 
 
-It may be easier to consider values that are **not** JSON-safe. Some examples: `undefined`s, `function`s, (ES6+) `symbol`s, and `object`s with circular references (where property references in an object structure create a never-ending cycle through each other). These are all illegal values for a standard JSON structure, mostly because they aren't portable to other languages that consume JSON values.
 
-The `JSON.stringify(..)` utility will automatically omit `undefined`, `function`, and `symbol` values when it comes across them. If such a value is found in an `array`, that value is replaced by `null` (so that the array position information isn't altered). If found as a property of an `object`, that property will simply be excluded.
+**not** JSON-safe. Some examples: `undefined`s, `function`s, (ES6+) `symbol`s, and `object`s with circular references.
+
+The `JSON.stringify(..)` utility will automatically omit prop if values are `undefined`, `function`, and `symbol`.
 
 Consider:
 
@@ -76,15 +72,14 @@ Consider:
 JSON.stringify( undefined );					// undefined
 JSON.stringify( function(){} );					// undefined
 
-JSON.stringify( [1,undefined,function(){},4] );	// "[1,null,null,4]"
+JSON.stringify( [1,undefined,function(){},4] );	// "[1,null,null,4]" // it will add null for arrays
 JSON.stringify( { a:2, b:function(){} } );		// "{"a":2}"
 ```
 
 But if you try to `JSON.stringify(..)` an `object` with circular reference(s) in it, an error will be thrown.
 
-JSON stringification has the special behavior that if an `object` value has a `toJSON()` method defined, this method will be called first to get a value to use for serialization.
 
-If you intend to JSON stringify an object that may contain illegal JSON value(s), or if you just have values in the `object` that aren't appropriate for the serialization, you should define a `toJSON()` method for it that returns a *JSON-safe* version of the `object`.
+If you  have values in the `object` that aren't *JSON-safe*, you should define a `toJSON()` method for it that returns a *JSON-safe* version of the `object`.
 
 For example:
 
@@ -112,47 +107,13 @@ a.toJSON = function() {
 JSON.stringify( a ); // "{"b":42}"
 ```
 
-It's a very common misconception that `toJSON()` should return a JSON stringification representation. That's probably incorrect, unless you're wanting to actually stringify the `string` itself (usually not!). `toJSON()` should return the actual regular value (of whatever type) that's appropriate, and `JSON.stringify(..)` itself will handle the stringification.
 
-In other words, `toJSON()` should be interpreted as "to a JSON-safe value suitable for stringification," not "to a JSON string" as many developers mistakenly assume.
+`toJSON()` should be interpreted as "to a JSON-safe object," not "to a JSON string" as many developers mistakenly assume.
 
-Consider:
 
-```js
-var a = {
-	val: [1,2,3],
 
-	// probably correct!
-	toJSON: function(){
-		return this.val.slice( 1 );
-	}
-};
+An optional second argument to `JSON.stringify(..)` called *replacer*. This argument can  be an `array` or a `function`. It's used to customize the recursive serialization of an `object` by providing a filtering mechanism for which properties should and should not be included.
 
-var b = {
-	val: [1,2,3],
-
-	// probably incorrect!
-	toJSON: function(){
-		return "[" +
-			this.val.slice( 1 ).join() +
-		"]";
-	}
-};
-
-JSON.stringify( a ); // "[2,3]"
-
-JSON.stringify( b ); // ""[2,3]""
-```
-
-In the second call, we stringified the returned `string` rather than the `array` itself, which was probably not what we wanted to do.
-
-While we're talking about `JSON.stringify(..)`, let's discuss some lesser-known functionalities that can still be very useful.
-
-An optional second argument can be passed to `JSON.stringify(..)` that is called *replacer*. This argument can either be an `array` or a `function`. It's used to customize the recursive serialization of an `object` by providing a filtering mechanism for which properties should and should not be included, in a similar way to how `toJSON()` can prepare a value for serialization.
-
-If *replacer* is an `array`, it should be an `array` of `string`s, each of which will specify a property name that is allowed to be included in the serialization of the `object`. If a property exists that isn't in this list, it will be skipped.
-
-If *replacer* is a `function`, it will be called once for the `object` itself, and then once for each property in the `object`, and each time is passed two arguments, *key* and *value*. To skip a *key* in the serialization, return `undefined`. Otherwise, return the *value* provided.
 
 ```js
 var a = {
@@ -169,9 +130,7 @@ JSON.stringify( a, function(k,v){
 // "{"b":42,"d":[1,2,3]}"
 ```
 
-**Note:** In the `function` *replacer* case, the key argument `k` is `undefined` for the first call (where the `a` object itself is being passed in). The `if` statement **filters out** the property named `"c"`. Stringification is recursive, so the `[1,2,3]` array has each of its values (`1`, `2`, and `3`) passed as `v` to *replacer*, with indexes (`0`, `1`, and `2`) as `k`.
-
-A third optional argument can also be passed to `JSON.stringify(..)`, called *space*, which is used as indentation for prettier human-friendly output. *space* can be a positive integer to indicate how many space characters should be used at each indentation level. Or, *space* can be a `string`, in which case up to the first ten characters of its value will be used for each indentation level.
+A third optional argument can also be passed to `JSON.stringify(..)`, called *space*, which is used as indentation for prettier human-friendly output.
 
 ```js
 var a = {
@@ -203,10 +162,6 @@ JSON.stringify( a, null, "-----" );
 // }"
 ```
 
-Remember, `JSON.stringify(..)` is not directly a form of coercion. We covered it here, however, for two reasons that relate its behavior to `ToString` coercion:
-
-1. `string`, `number`, `boolean`, and `null` values all stringify for JSON basically the same as how they coerce to `string` values via the rules of the `ToString` abstract operation.
-2. If you pass an `object` value to `JSON.stringify(..)`, and that `object` has a `toJSON()` method on it, `toJSON()` is automatically called to (sort of) "coerce" the value to be *JSON-safe* before stringification.
 
 ### `ToNumber`
 
